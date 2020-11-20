@@ -1,0 +1,183 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>GetDistributionOfPixelValues</groupId>
+  <artifactId>GetDistributionOfPixelValues</artifactId>
+  <packaging>jar</packaging>
+  <version>1.0</version>
+  <name>Maven Quick Start Archetype</name>
+  <url>http://maven.apache.org</url>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin </artifactId>
+        <version>2.3.2</version>
+        <configuration>  
+          <source>1.6</source>
+          <target>1.6</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.3.1</version>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>GetDistributionOfPixelValues</mainClass>
+              <addClasspath>true</addClasspath>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifest>
+              <mainClass>GetDistributionOfPixelValues</mainClass>
+            </manifest>
+          </archive>
+          <descriptors>
+            <descriptor>src/assemble/distribution.xml</descriptor>
+          </descriptors>
+        </configuration>
+      </plugin>
+
+    </plugins>
+
+    <resources>
+  
+       <resource>
+          <directory> src/main/resources/ </directory>
+          <includes>
+            <include> logger.config </include>
+          </includes>
+       </resource>
+
+    </resources>
+
+  </build>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>nom.tam</groupId>
+      <artifactId>fits</artifactId>
+      <version>1.06</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache</groupId>
+      <artifactId>log4j</artifactId>
+      <version>1.2.15</version>
+      <scope>compile</scope>
+    </dependency>
+
+   <dependency>
+      <groupId>org.freehep</groupId>
+      <artifactId>freehep-base</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.freehep.math</groupId>
+      <artifactId>minuit</artifactId>
+      <version>3.5</version>
+    </dependency>
+
+    <dependency>
+      <groupId>hep.aida.ref</groupId>
+      <artifactId>optimizer</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>hep.aida.ref</groupId>
+      <artifactId>histogram</artifactId>
+      <version>2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.openide.util</groupId>
+      <artifactId>openide-lookup</artifactId>
+      <version>7.7.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>hep.aida</groupId>
+      <artifactId>aida-dev</artifactId>
+      <version>3.3</version>
+    </dependency>
+
+    <dependency>
+      <groupId>hep.aida</groupId>
+      <artifactId>aida</artifactId>
+      <version>3.5</version>
+    </dependency>
+
+    <dependency>
+     <groupId>colt</groupId>
+     <artifactId>colt</artifactId>
+     <version>1.2.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>gb.esac</groupId>
+      <artifactId>io</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>gb.esac</groupId>
+      <artifactId>binner</artifactId>
+      <version>1.0</version>
+      <scope>compile</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>gb.esac</groupId>
+      <artifactId>tools</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+  </dependencies>
+
+<repositories>
+
+  <repository>
+    <id>central-maven-repo</id>
+    <url>http://repo1.maven.org/maven2</url>
+  </repository>
+
+ <repository>
+    <id>com.springsource.repository.bundles.release</id>
+    <name>SpringSource Enterprise Bundle Repository - SpringSource Bundle Releases</name>
+    <url>http://repository.springsource.com/maven/bundles/release</url>
+ </repository>
+
+ <repository>
+    <id>com.springsource.repository.bundles.external</id>
+    <name>SpringSource Enterprise Bundle Repository - External Bundle Releases</name>
+    <url>http://repository.springsource.com/maven/bundles/external</url>
+ </repository>
+
+  <repository>
+    <id>freehep-maven</id>
+    <url>http://java.freehep.org/maven2</url>
+  </repository>
+
+  <repository>
+    <id>ibiblio-maven</id>
+    <url>http://www.ibiblio.org/maven2</url>
+  </repository>
+
+</repositories>
+ 
+</project>
