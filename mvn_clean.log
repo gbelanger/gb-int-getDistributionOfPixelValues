@@ -1,0 +1,14 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----< GetDistributionOfPixelValues:GetDistributionOfPixelValues >------
+[INFO] Building Maven Quick Start Archetype 1.0
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- maven-clean-plugin:2.5:clean (default-clean) @ GetDistributionOfPixelValues ---
+[INFO] Deleting /Users/gbelanger/dev/java/my-jars/GetDistributionOfPixelValues/target
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.188 s
+[INFO] Finished at: 2020-12-11T16:20:46+01:00
+[INFO] ------------------------------------------------------------------------
