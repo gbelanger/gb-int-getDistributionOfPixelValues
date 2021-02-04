@@ -1,4 +1,3 @@
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -288,6 +287,18 @@ public class GetDistributionOfPixelValues {
       };
     }
     return header;
+  }
+
+  public static double[][] getData(final Histogram1D histo) {
+    IAxis axis = histo.axis();
+    int nBins = axis.bins();
+    double[] binHeights = new double[nBins];
+    double[] binCentres = new double[nBins];
+    for ( int i=0; i < nBins; i++ ) {
+      binHeights[i] = histo.binHeight(i);
+      binCentres[i] = axis.binCenter(i);
+    }
+    return new double[][] {binCentres, binHeights};
   }
 
   public static double[][] getData(final IHistogram1D iHisto) {
