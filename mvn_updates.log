@@ -19,7 +19,7 @@
 [INFO] 
 [WARNING] Project does not define minimum Maven version, default is: 2.0
 [INFO] Plugins require minimum Maven version of: 3.0
-[INFO] Note: the super-pom from Maven 3.6.3 defines some of the plugin
+[INFO] Note: the super-pom from Maven 3.8.5 defines some of the plugin
 [INFO]       versions and may be influencing the plugins required minimum Maven
 [INFO]       version.
 [INFO] 
@@ -81,6 +81,6 @@
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  2.288 s
-[INFO] Finished at: 2021-02-04T09:56:08+01:00
+[INFO] Total time:  1.294 s
+[INFO] Finished at: 2022-06-15T14:33:01+02:00
 [INFO] ------------------------------------------------------------------------

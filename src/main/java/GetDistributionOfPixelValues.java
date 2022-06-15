@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 
 import hep.aida.IAnalysisFactory;
 import hep.aida.IFitFactory;
@@ -33,9 +35,15 @@ import org.apache.log4j.PropertyConfigurator;
 
 public class GetDistributionOfPixelValues {
 
-  private static DecimalFormat decimal = new DecimalFormat("0.0000");
+  // Class variables
+  // General
+  static Logger logger  = Logger.getLogger(GetDistributionOfPixelValues.class);
+  private static File loggerFile;
+  private static String sep = File.separator;
   private static String filename;
   private static int extension;
+  private static DecimalFormat number = new DecimalFormat("0.00");
+  private static DecimalFormat decimal = new DecimalFormat("0.0000");
 
   public static void main(String[] args) throws Exception {
     configureLogger();
@@ -46,10 +54,21 @@ public class GetDistributionOfPixelValues {
 
   private static double getStdDevOfPixelValuesDistribution(String filename, int ext) throws Exception {
     // Get the data
-    Fits fitsImage  = openFits(filename);
+    Fits fitsImage  = new Fits(new File(filename));
     ImageHDU hdu = (ImageHDU) fitsImage.getHDU(ext);
-    float[][] pixelValues_2d = (float[][]) hdu.getKernel();
-    float[] pixelValues = (float[]) ArrayFuncs.flatten(pixelValues_2d);
+    double[] pixelValues;
+    try {
+      float[][] pixelValues_2d = (float[][]) hdu.getKernel();
+      float[] input = (float[]) ArrayFuncs.flatten(pixelValues_2d);
+      pixelValues = new double[input.length];
+      for (int i = 0; i < input.length; i++) {
+        pixelValues[i] = input[i];
+      }
+    }
+    catch (ClassCastException e) {
+      double[][] pixelValues_2d = (double[][]) hdu.getKernel();
+      pixelValues = (double[]) ArrayFuncs.flatten(pixelValues_2d);
+    }
     // Make preliminary histo
     logger.info("Building preliminary histo:");
     logger.info("(excluding NaN and 0.0 values)");
@@ -136,30 +155,32 @@ public class GetDistributionOfPixelValues {
   }
 
   //  Logger
-  private static Logger logger  = Logger.getLogger(GetDistributionOfPixelValues.class);
-  private static File loggerFile;
-  private static void configureLogger() throws IOException {
-    String loggerFilename= "logger.config";
-    InputStream log = ClassLoader.getSystemResourceAsStream(loggerFilename);
+  private static void configureLogger() throws IOException, ClassNotFoundException {
+    String filename= "logger.config";
+    InputStream inputStream = getFileFromJarAsStream(filename);
     UUID uuid = UUID.randomUUID();
-    String homeDir = System.getProperty("user.home");
-    loggerFilename = new String(homeDir+File.pathSeparator+"logger.config_"+uuid.toString());
-    loggerFile = new File(loggerFilename);
+    String tmpdir = System.getProperty("java.io.tmpdir");
+    loggerFile = new File(tmpdir+sep+"logger.config_"+uuid.toString());
+    inputStreamToFile(inputStream, loggerFile);
     loggerFile.deleteOnExit();
-    inputStreamToFile(log, loggerFilename);
-    PropertyConfigurator.configure(loggerFilename);
-  }
-  private static void inputStreamToFile(InputStream io, String fileName) throws IOException {
-    FileOutputStream fos = new FileOutputStream(fileName);
-    byte[] buf = new byte[256];
-    int read = 0;
-    while ((read = io.read(buf)) > 0) {
-      fos.write(buf, 0, read);
-    }
-    fos.flush();
-    fos.close();
+    PropertyConfigurator.configure(loggerFile.getPath());
   }
 
+  public static InputStream getFileFromJarAsStream(String name) throws ClassNotFoundException {
+    Class cls = Class.forName("GetDistributionOfPixelValues");
+    ClassLoader cLoader = cls.getClassLoader();
+    InputStream stream = cLoader.getResourceAsStream(name);
+    return stream;
+  }
+
+  private static void inputStreamToFile(InputStream inputStream, File targetFile) throws IOException {
+  java.nio.file.Files.copy(
+        inputStream, 
+        targetFile.toPath(), 
+        StandardCopyOption.REPLACE_EXISTING);
+    inputStream.close();
+  }
+  
   // Arguments
   private static void handleArgs(String[] args) {
     if ( args.length != 2 ) {
@@ -168,29 +189,6 @@ public class GetDistributionOfPixelValues {
     }
     filename = args[0];
     extension = (int) Integer.valueOf(args[1]);
-  }
-
-  // isGzipped
-  public static boolean isGzipped(String fileName) throws IOException {
-    return isGzipped(new File(fileName));
-  }
-  public static boolean isGzipped(File file) throws IOException {
-    InputStream in = new FileInputStream(file);
-    int magic1 = in.read();
-    int magic2 = in.read();
-    in.close();
-    return (magic1 == 0037 && magic2 == 0213);
-  }
-
-  // openFits
-  public static Fits openFits(String filename) throws IOException, FitsException {
-    return openFits(new File(filename));
-  }
-  public static Fits openFits(File file) throws IOException, FitsException {
-    boolean isGzipped = isGzipped(file);
-    BufferedDataInputStream dis = new BufferedDataInputStream(new FileInputStream(file));
-    Fits fitsFile = new Fits(dis, isGzipped);
-    return fitsFile;
   }
 
   // writeHisto
@@ -205,6 +203,34 @@ public class GetDistributionOfPixelValues {
   }
 
   private static IHistogram1D makeHisto(final float[] data, final double xmin, final double xmax, final int nBins) {
+    IAnalysisFactory af = IAnalysisFactory.create();
+    ITree tree = af.createTreeFactory().create();
+    IHistogramFactory hf = af.createHistogramFactory(tree);
+    IHistogram1D histo = hf.createHistogram1D("histo", nBins, xmin, xmax);
+    double weight = 0;
+    for ( int i=0; i < data.length; i++ ) {
+      if ( Double.isNaN(new Double(data[i])) || data[i] == 0.0 ) {
+        weight = 0;
+      }
+      else {
+        weight = 1;
+      }
+      histo.fill(data[i], weight);
+    }
+    return histo;
+  }
+
+  private static void writeHisto(final String filename, final double[] values, final double xmin, final double xmax, final int nbins, final double[] function) throws IOException {
+    IHistogram1D histo = makeHisto(values, xmin, xmax, nbins);
+    String xLabel = "Pixel Value";
+    String yLabel = "Entries per bin";
+    boolean showStats = true;
+    String[] header = makeHistoHeader((Histogram1D)histo, xLabel, yLabel, showStats);
+    double[][] data = getData(histo);
+    printToFile(filename, header, data[0], data[1], function);
+  }
+
+  private static IHistogram1D makeHisto(final double[] data, final double xmin, final double xmax, final int nBins) {
     IAnalysisFactory af = IAnalysisFactory.create();
     ITree tree = af.createTreeFactory().create();
     IHistogramFactory hf = af.createHistogramFactory(tree);
@@ -308,7 +334,7 @@ public class GetDistributionOfPixelValues {
   private static double[] calculateYMinYMax(final Histogram1D histo) {
     double maxBinHeight = histo.maxBinHeight();
     double minBinHeight = histo.minBinHeight();
-    double margin = 0.05*maxBinHeight;
+    double margin = 0.05 * maxBinHeight;
     double max = maxBinHeight + margin;
     double yMin = minBinHeight - margin;
     yMin = Math.max(0, yMin-margin);
